@@ -8,7 +8,9 @@
  ## 使用
 
  以下两个指令分别是安装和卸载，需要管理员权限执行。一旦安装，dll文件将被系统占用，无法修改，必须执行卸载才可修改。卸载后可能需要等一段时间系统才会取消占用，不想等可以重启。
+ 
 ``` Regsvr32.exe  EpubShellExtThumbnailHandler.dll ```
+
 ``` Regsvr32.exe /u EpubShellExtThumbnailHandler.dll ```
 
  ## 说明
