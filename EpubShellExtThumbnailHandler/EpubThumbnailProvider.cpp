@@ -119,62 +119,63 @@ IFACEMETHODIMP EpubThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp,
 	ULONG actRead;
 	ULARGE_INTEGER fileSize;
 	DEBUGLOG("run");
-	hr=IStream_Size(m_pStream,&fileSize); if (hr != S_OK) { DEBUGLOG("Error at IStream_Size"); return E_ABORT; }
+	hr=IStream_Size(m_pStream,&fileSize); if (!SUCCEEDED(hr)) { DEBUGLOG("Error at IStream_Size"); return E_FAIL; }
 	
-	byte* buffer = (byte*)CoTaskMemAlloc(fileSize.QuadPart); if (!buffer) { DEBUGLOG("Error at malloc buffer");  return E_ABORT; }
-	hr = m_pStream->Read(buffer, (LONG)fileSize.QuadPart+1, &actRead);if (hr != S_FALSE) {CoTaskMemFree(buffer); DEBUGLOG("Error at Read Stream"); return E_ABORT;}
-
+	byte* buffer = (byte*)CoTaskMemAlloc(fileSize.QuadPart); 
+	if (!buffer) { DEBUGLOG("Error at malloc buffer");  return E_FAIL; }
+	else 
+	{
+		hr = m_pStream->Read(buffer, (LONG)fileSize.QuadPart + 1, &actRead); 
+		if (hr != S_FALSE) 
+		{ 
+			CoTaskMemFree(buffer); 
+			DEBUGLOG("Error at Read Stream"); 
+			return E_FAIL;
+		}
+	}
 	//得到了全部数据
+	//got all data
 	
 	//加载zip
-	HZIP zip= OpenZip(buffer,actRead,0);if(!zip) { DEBUGLOG("Error at Load zip"); CoTaskMemFree(buffer); return E_ABORT; }
+	//Load zip
+	HZIP zip= OpenZip(buffer,actRead,0);
+	if(!zip) { DEBUGLOG("Error at Load zip"); CoTaskMemFree(buffer); return E_FAIL; }
 
 	//查找用
 	int index = -1; ZIPENTRY entry;
 
 	//假定路径，如果中了就省了不少事
+	//Assumption. 
 	hr=FindZipItem(zip,L"OEBPS/Images/cover.jpg",true,&index,&entry);
-	if(index!=-1)
+	if(index==-1)//assumption failure
 	{
-		byte*image = (byte*)CoTaskMemAlloc(entry.unc_size); if (!image) { CoTaskMemFree(buffer); return E_ABORT; }
-		hr=UnzipItem(zip, index, image, entry.unc_size);
-		if (hr == ZR_OK) 
-		{
-			IStream *pImageStream = SHCreateMemStream(image, entry.unc_size);
-			hr=WICCreate32bppHBITMAP(pImageStream, phbmp, pdwAlpha);
-			pImageStream->Release();
-			CoTaskMemFree(image);
-			CloseZip(zip);CoTaskMemFree(buffer);
-			return hr;
-		}
-	}
-	
-	//get root-file
-	{
+		//Get cover in a standard way
 		BSTR coverpath;
-		hr=GetCoverPath(zip,&coverpath);
-		if (SUCCEEDED(hr)) 
+		hr = GetCoverPath(zip, &coverpath);
+		if (SUCCEEDED(hr))
 		{
-			hr = FindZipItem(zip,coverpath, false, &index, &entry);
-			if (index != -1)
-			{
-				byte*image = (byte*)CoTaskMemAlloc(entry.unc_size); if (!image) { CoTaskMemFree(buffer); return E_ABORT; }
-				hr = UnzipItem(zip, index, image, entry.unc_size);
-				if (hr == ZR_OK)
-				{
-					IStream *pImageStream = SHCreateMemStream(image, entry.unc_size);
-					hr = WICCreate32bppHBITMAP(pImageStream, phbmp, pdwAlpha);
-					pImageStream->Release();
-					CoTaskMemFree(image);
-					CloseZip(zip);
-				}
-			}
+			hr = FindZipItem(zip, coverpath, false, &index, &entry);
 			SysFreeString(coverpath);
 		}
-
 	}
-	
 
+	if (index != -1)//should get a index if cover exist.
+	{
+		byte*image = (byte*)CoTaskMemAlloc(entry.unc_size);
+		if (image)
+		{
+			hr = UnzipItem(zip, index, image, entry.unc_size);
+			if (hr == ZR_OK)
+			{
+				IStream *pImageStream = SHCreateMemStream(image, entry.unc_size);
+				hr = WICCreate32bppHBITMAP(pImageStream, phbmp, pdwAlpha);
+				pImageStream->Release();
+			}
+			CoTaskMemFree(image);
+		}
+		else { hr = E_FAIL; }
+	}
+	CloseZip(zip);
 	CoTaskMemFree(buffer);
     return hr;
 }
@@ -217,25 +218,22 @@ HRESULT GetCoverPath(HZIP zip, BSTR*path)
 							DEBUGLOG("Got opf data");
 							BSTR cover_path = NULL;
 							hr = OPFHandle(opf_data, &cover_path);
-							*path = CombineHref(opf_path, cover_path);
-							SysFreeString(cover_path);
+							if (SUCCEEDED(hr)) 
+							{
+								*path = CombineHref(opf_path, cover_path);
+								SysFreeString(cover_path);
+							}
 						}
-
+						CoTaskMemFree(opf_data);
 					}
 					else { hr = E_FAIL; }
-					CoTaskMemFree(opf_data);
 				}
 				else
-				{
-					hr = E_FAIL;
-				}
-
+				{hr = E_FAIL;}
+				SysFreeString(opf_path);
 			}
-			SysFreeString(opf_path);
-
 		}
 		CoTaskMemFree(xml);
-
 	}
 
 	return hr;

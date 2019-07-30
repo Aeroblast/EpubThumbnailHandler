@@ -1,4 +1,4 @@
-# EpubThumbnailHandler
+﻿# EpubThumbnailHandler
  Windows Shell Extention Thumbnail Handler for .epub
 
 
@@ -17,5 +17,5 @@
  魔改自官方教程。
  谁知道会不会有什么内存泄漏、加载变慢之类的问题呢……所以暂时不提供编译版，至少会编译才能处理突发问题吧（
  
- 测试环境Windows 10 1803，编译VS2017。
+ 测试环境Windows 10 1803/1903，编译VS2017。
 

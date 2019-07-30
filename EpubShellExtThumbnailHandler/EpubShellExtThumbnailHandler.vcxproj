@@ -151,6 +151,7 @@
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="EpubThumbnailProvider.h" />
     <ClInclude Include="Reg.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="unzip.h" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,9 @@
     <ClCompile Include="EpubThumbnailProvider.cpp" />
     <ClCompile Include="Reg.cpp" />
     <ClCompile Include="unzip.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EpubShellExtThumbnailHandler.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
