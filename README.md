@@ -1,5 +1,5 @@
 ﻿# EpubThumbnailHandler
- Windows Shell Extention Thumbnail Handler for .epub
+ Windows Shell Extension Thumbnail Handler for .epub
 
 
  ## 编译
