@@ -19,3 +19,7 @@
  
  测试环境Windows 10 1803/1903，编译VS2019。
 
+## 安装可能遇到的问题
+非开发机需要安装Visual C++ Redistributable Packages。
+
+微软官方下载地址：https://aka.ms/vs/16/release/vc_redist.x64.exe
