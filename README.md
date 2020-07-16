@@ -14,10 +14,9 @@
 ``` Regsvr32.exe /u EpubShellExtThumbnailHandler.dll ```
 
  ## 说明
- 魔改自官方教程。
- 谁知道会不会有什么内存泄漏、加载变慢之类的问题呢……所以暂时不提供编译版，至少会编译才能处理突发问题吧（
+自己用了大半年没啥问题，大概可以用吧。
  
- 测试环境Windows 10 1803/1903，编译VS2019。
+测试环境Windows 10 1903/1909，编译VS2019。
 
 ## 安装可能遇到的问题
 非开发机需要安装Visual C++ Redistributable Packages。
